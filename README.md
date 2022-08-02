@@ -10,3 +10,5 @@ Mínimo para aprovação: 6/8
 
 # Aprovado 
 8/8 teste passaram!
+
+![img teste ok](https://user-images.githubusercontent.com/30321724/182476708-6fbe81fd-edb9-467e-9f78-df31519c8ded.PNG)
