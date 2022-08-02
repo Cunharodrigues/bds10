@@ -1,41 +1,54 @@
-import './styles.css';
-
 import Pagination from 'components/Pagination';
 import EmployeeCard from 'components/EmployeeCard';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { SpringPage } from 'types/vendor/spring';
+import { Employee } from 'types/employee';
+import { AxiosRequestConfig } from 'axios';
+import { requestBackend } from 'util/requests';
+import { hasAnyRoles } from 'util/auth';
 
-const employeeHardCode = { // delete
-  id: 1,
-  name: "Carlos",
-  email: "carlos@gmail.com",
-  department: {
-    id: 1,
-    name: "Sales"
-  }
-};
+import './styles.css';
 
 const List = () => {
 
+  const [page, setPage] = useState<SpringPage<Employee>>();
+
   const handlePageChange = (pageNumber: number) => {
-    // to do
+    const params: AxiosRequestConfig = {
+      method: 'GET',
+      url: `/employees`,
+      withCredentials: true,
+      params: {
+        page: pageNumber,
+        size: 4,
+      },
+    };
+
+    requestBackend(params).then((response) => {
+      setPage(response.data);
+    });
   };
+
+  useEffect(() => {
+    handlePageChange(0);
+  }, []);
 
   return (
     <>
       <Link to="/admin/employees/create">
-        <button className="btn btn-primary text-white btn-crud-add">
-          ADICIONAR
-        </button>
+        {hasAnyRoles(['ROLE_ADMIN']) && (
+          <button className="btn btn-primary text-white btn-crud-add">
+            ADICIONAR
+          </button>
+        )}
       </Link>
-
-      <EmployeeCard employee={employeeHardCode} />
-      <EmployeeCard employee={employeeHardCode} />
-      <EmployeeCard employee={employeeHardCode} />
-      <EmployeeCard employee={employeeHardCode} />
-
+      {page?.content.map((employee) => (
+        <EmployeeCard employee={employee} key={employee.id} />
+      ))}
       <Pagination
         forcePage={0}
-        pageCount={1}
+        pageCount={page ? page?.totalPages : 0}
         range={3}
         onChange={handlePageChange}
       />
